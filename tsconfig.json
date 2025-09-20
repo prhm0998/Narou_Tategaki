@@ -1,0 +1,14 @@
+{
+  "vueCompilerOptions": {
+    "plugins": [
+      "@vue/language-plugin-pug"
+    ]
+  },
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "useDefineForClassFields": true
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  }
+}
