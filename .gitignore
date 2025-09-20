@@ -1,8 +1,6 @@
 
 # Ignore all .env files
-*.env
-!.vscode/settings.example.json
-!.vscode/extensions.json
+*.env*
 
 ## Default Ignored Files
 
@@ -31,3 +29,6 @@ web-ext.config.ts
 *.njsproj
 *.sln
 *.sw?
+
+!.vscode/settings.example.json
+!.vscode/extensions.json
