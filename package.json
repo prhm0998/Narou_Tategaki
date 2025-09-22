@@ -21,15 +21,14 @@
   },
   "dependencies": {
     "@iconify-prerendered/vue-pepicons-pop": "^0.28.1722795431",
-    "@tailwindcss/postcss": "^4.1.13",
+    "@tailwindcss/vite": "^4.1.13",
     "@vueuse/core": "^12.5.0",
-    "@wxt-dev/module-vue": "^1.0.1",
     "@wxt-dev/auto-icons": "^1.1.0",
+    "@wxt-dev/module-vue": "^1.0.1",
     "daisyui": "^5.1.10",
     "dayjs": "^1.11.13",
-    "tailwindcss": "^4.1.13",
-    "postcss": "^8.5.2",
     "sass": "^1.85.0",
+    "tailwindcss": "^4.1.13",
     "vue": "^3.5.12",
     "wxt": "^0.20.11"
   },
