@@ -1,9 +1,6 @@
 onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - '@tailwindcss/oxide'
+  - "@parcel/watcher"
+  - "@tailwindcss/oxide"
   - esbuild
   - sharp
   - spawn-sync
-
-overrides:
-  '@prhm0998/shared': link:../../../../Users/myyah/AppData/Local/pnpm/global/5/node_modules/shared
