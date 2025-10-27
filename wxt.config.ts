@@ -1,4 +1,4 @@
-import { defineConfig } from 'wxt';
+import { defineConfig } from 'wxt'
 import tailwindcss from '@tailwindcss/vite'
 
 // See https://wxt.dev/api/config.html
@@ -16,7 +16,7 @@ export default defineConfig({
       plugins: [
         tailwindcss(),
       ],
-    };
+    }
   },
 
   manifest: () => ({
@@ -25,4 +25,4 @@ export default defineConfig({
     description: '__MSG_description__',
     default_locale: 'ja',
   }),
-});
+})
