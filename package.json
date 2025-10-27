@@ -2,7 +2,7 @@
   "name": "tate-narou-v",
   "description": "縦書き表示 & いくつかの操作を追加",
   "private": true,
-  "version": "0.4.1",
+  "version": "0.4.2",
   "type": "module",
   "scripts": {
     "dev": "wxt",
