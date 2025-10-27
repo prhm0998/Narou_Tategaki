@@ -1,5 +1,5 @@
-import { createApp } from 'vue';
-import App from './App.vue';
+import { createApp } from 'vue'
+import App from './App.vue'
 export default defineContentScript({
   //https://ncode.syosetu.com/n9669bk/2/
   matches: [
@@ -16,18 +16,18 @@ export default defineContentScript({
         // Create the app and mount it to the UI container
         const app = createApp(App, {
           ctx,
-        });
-        app.mount(container);
-        return app;
+        })
+        app.mount(container)
+        return app
       },
       onRemove: (app) => {
         // Unmount the app when the UI is removed
         if (app) {
-          app.unmount();
+          app.unmount()
         }
       },
-    });
+    })
     // Call mount to add the UI to the DOM
-    ui.mount();
+    ui.mount()
   },
-});
+})

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRangeInput } from '@/composables/useRangeInput';
+import { useRangeInput } from '@/composables/useRangeInput'
 
 const props = defineProps<{
   value: number
@@ -8,13 +8,13 @@ const props = defineProps<{
   step: number
   disabled?: boolean
   updateTrigger?: 'input' | 'change' // 追加
-}>();
+}>()
 
 const emit = defineEmits<{
   (e: 'update:value' | 'input' | 'change', value: number): void
 }>()
 
-const { internalValue, handleUpdate } = useRangeInput(props, emit);
+const { internalValue, handleUpdate } = useRangeInput(props, emit)
 </script>
 
 <template>

@@ -12,24 +12,22 @@ type RangeInputEmit = {
 };
 
 export function useRangeInput(props: RangeInputProps, emit: RangeInputEmit) {
-  const internalValue = ref(props.value);
+  const internalValue = ref(props.value)
 
   watch(() => props.value, (newValue) => {
-    internalValue.value = newValue;
-  });
-
+    internalValue.value = newValue
+  })
   const handleUpdate = (eventType: 'input' | 'change', event: Event) => {
-    const newValue = Number((event.target as HTMLInputElement).value);
-    internalValue.value = newValue;
+    const newValue = Number((event.target as HTMLInputElement).value)
+    internalValue.value = newValue
 
     if (props.updateTrigger === eventType || !props.updateTrigger) {
-      console.log('1')
-      emit('update:value', newValue);
+      emit('update:value', newValue)
     }
-  };
+  }
 
   return {
     internalValue,
     handleUpdate,
-  };
+  }
 }
