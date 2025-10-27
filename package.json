@@ -22,7 +22,9 @@
     "submit-unix": "wxt submit --chrome-zip .output/${npm_package_name}-${npm_package_version}-chrome.zip"
   },
   "dependencies": {
+    "@1natsu/wait-element": "^4.1.2",
     "@iconify-prerendered/vue-pepicons-pop": "^0.28.1722795431",
+    "@prhm0998/shared": "github:prhm0998/shared#v1.0.3",
     "@tailwindcss/vite": "^4.1.13",
     "@vueuse/core": "^12.5.0",
     "@wxt-dev/auto-icons": "^1.1.0",
@@ -32,7 +34,7 @@
     "dayjs": "^1.11.13",
     "sass": "^1.85.0",
     "tailwindcss": "^4.1.13",
-    "vue": "^3.5.12",
+    "vue": "^3.5.22",
     "wxt": "^0.20.11"
   },
   "devDependencies": {

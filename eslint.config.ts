@@ -1,11 +1,13 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import tseslint from 'typescript-eslint';
-import pluginVue from 'eslint-plugin-vue';
-import css from '@eslint/css';
-import { defineConfig } from 'eslint/config';
+import js from '@eslint/js'
+import globals from 'globals'
+import tseslint from 'typescript-eslint'
+import pluginVue from 'eslint-plugin-vue'
+import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
+  {
+    ignores: ['.output/', '.wxt/', 'node_modules/'],
+  },
   // 共通設定: JS/TS/Vue全般
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
@@ -37,6 +39,12 @@ export default defineConfig([
       'quotes': ['error', 'single'],
       'function-paren-newline': ['error', 'consistent'],
       'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0, maxBOF: 0 }],
+      'semi': ['error', 'never', { 'beforeStatementContinuationChars': 'never' }],
+      'semi-spacing': ['error', { 'after': true, 'before': false }],
+      'semi-style': ['error', 'first'],
+      'no-extra-semi': 'error',
+      'no-unexpected-multiline': 'error',
+      'no-unreachable': 'error',
 
     },
   },
@@ -76,5 +84,4 @@ export default defineConfig([
       'vue/static-class-names-order': 'error',
     },
   },
-  { files: ['**/*.css'], plugins: { css }, language: 'css/css', extends: ['css/recommended'] },
-]);
+])

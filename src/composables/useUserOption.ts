@@ -1,77 +1,79 @@
-import useStoredValue from './useStoredValue'
-import { useDebounceFn } from '@vueuse/core'
+import { useGenericStore, type UpdateStateFn } from '@prhm0998/shared/composables'
 
 export interface UserOption {
   wheelReverse: boolean
   fixedOnload: boolean
   expandHeight: boolean
   latinToZen: boolean
+  autoPagerizer: boolean
   scrollAmount: number,
   viewportHeight: number,
-  autoPagerizer: boolean
 }
 
-export type UserOptionEvent =
-  | { type: 'toggle', key: keyof Omit<UserOption, 'scrollAmount' | 'viewportHeight'> }
-  | { type: 'set', key: keyof Pick<UserOption, 'scrollAmount' | 'viewportHeight'>, value: number }
+export type BooleanKeys = { [K in keyof UserOption]: UserOption[K] extends boolean ? K : never
+}[keyof UserOption]
 
-const getDefaultUserOption = (): UserOption => ({
+export type NumberKeys = {
+  [K in keyof UserOption]: UserOption[K] extends number ? K : never
+}[keyof UserOption]
+
+type UserOptionUpdateEvent =
+  | {
+    type: 'toggle',
+    subKey: BooleanKeys
+  }
+  | {
+    type: 'set',
+    subKey: NumberKeys,
+    value: number
+  }
+
+const getDefaultState = (): UserOption => ({
   wheelReverse: false,
   expandHeight: false,
   fixedOnload: false,
   latinToZen: true,
+  autoPagerizer: true,
   scrollAmount: 272,
   viewportHeight: 96,
-  autoPagerizer: false,
 })
 
-export default function () {
-  const defaultUserOption = getDefaultUserOption()
-  const { state: storedJson } = useStoredValue('local:Option', '{}')
-  const memoryCache = ref<UserOption>(defaultUserOption)
+// json to state
+const deserialize = (jsonString: string): UserOption => {
+  try {
+    const parsed = JSON.parse(jsonString) as Partial<UserOption>
+    // jsonにないプロパティはデフォルトから持ってくる
+    return Object.assign({}, getDefaultState(), parsed)
+  }
+  catch {
+    return getDefaultState()
+  }
+}
 
-  // json to state
-  const deserialize = (jsonString: string): UserOption => {
-    try {
-      const parsed = JSON.parse(jsonString) as Partial<UserOption>
-      // jsonにないプロパティはデフォルトから持ってくる
-      return Object.assign({}, getDefaultUserOption(), parsed)
+const serialize = (cache: UserOption) => JSON.stringify(cache)
+const updateStateLogic: UpdateStateFn<UserOption, UserOptionUpdateEvent> = (state, event) => {
+  switch (event.type) {
+    case 'toggle': {
+      const keyToToggle = event.subKey
+      state.value[keyToToggle] = !state.value[keyToToggle]
+      break
     }
-    catch {
-      return getDefaultUserOption()
+    case 'set': {
+      const keyToSet = event.subKey
+      state.value[keyToSet] = event.value
+      break
     }
+    default:
+      console.warn('不明な UserOptionUpdateEvent が渡されました。', event)
   }
+}
 
-  // state to json 後はstringifyするだけの状態に加工する
-  const serialize = (): UserOption => {
-    return memoryCache.value
-  }
-
-  // ストアに更新があったらキャッシュも更新する
-  const initializeCache = () => memoryCache.value = deserialize(storedJson.value)
-  watch(storedJson, (newVal) => memoryCache.value = deserialize(newVal))
-  initializeCache()
-
-  const saveToStorage = useDebounceFn(() => {
-    storedJson.value = JSON.stringify(serialize())
-  }, 100, { maxWait: 1000 })
-
-  const updateUserOption = (event: UserOptionEvent) => {
-    switch (event.type) {
-      case 'set':
-        memoryCache.value[event.key] = event.value
-        break;
-      case 'toggle':
-        memoryCache.value[event.key] = !memoryCache.value[event.key]
-        break;
-      default:
-        break;
-    }
-    saveToStorage()
-  }
-
-  return {
-    state: (memoryCache),
-    updateUserOption,
-  }
+export default function useUserOption() {
+  return useGenericStore<UserOption, UserOptionUpdateEvent>(
+    'local:UserOption',
+    getDefaultState,
+    deserialize,
+    serialize,
+    updateStateLogic
+  )
 }
