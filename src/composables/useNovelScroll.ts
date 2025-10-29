@@ -1,51 +1,10 @@
 // useNovelScroll.ts
 
 import { useThrottleFn } from '@vueuse/core'
-import { Ref } from 'vue'
+import type { Ref } from 'vue'
 import type { UserOption } from './useUserOption'
-
-// スムーススクロール関数 (変更なし)
-const smoothScroll = (
-  honbun: HTMLElement,
-  target: number,
-  duration = 300,
-  maxAmountPerFrame = 100
-) => {
-  // ... 既存の smoothScroll ロジック ...
-  const start = honbun.scrollLeft
-  const distance = target - start
-  const startTime = performance.now()
-  let lastFrameTime = startTime
-
-  const step = (currentTime: number) => {
-    const elapsed = currentTime - startTime
-    const deltaTime = currentTime - lastFrameTime
-    const progress = Math.min(elapsed / duration, 1)
-    const easedProgress = 1 - (1 - progress) * (1 - progress)
-    const idealPosition = start + distance * easedProgress
-
-    const maxAmount = (maxAmountPerFrame / 100) * deltaTime
-    const actualMove = Math.min(
-      Math.abs(idealPosition - honbun.scrollLeft),
-      maxAmount
-    )
-
-    if (idealPosition > honbun.scrollLeft) {
-      honbun.scrollLeft += actualMove
-    }
-    else {
-      honbun.scrollLeft -= actualMove
-    }
-
-    lastFrameTime = currentTime
-
-    if (progress < 1) {
-      requestAnimationFrame(step)
-    }
-  }
-
-  requestAnimationFrame(step)
-}
+import { getFixedElementsTotalHeight, scrollWithFixedOffset, smoothScroll } from '@prhm0998/shared/utils'
+import { useWindowScrollLock } from '@prhm0998/shared/composables'
 
 /**
  * 本文のカスタムスクロールとイベント処理を提供するComposables
@@ -53,51 +12,55 @@ const smoothScroll = (
  * @param optionRef ユーザーオプションのRef
  */
 export function useNovelScroll(pNovelRef: Ref<HTMLElement | null>, optionRef: Ref<UserOption>) {
+  /**
+   * 横書き領域のスクロールは前提がややこしいので注意
+   * まず、右から左←へスクロールするとき要素の座標はマイナス方向に進みます
+   * つまり、マウスホイール/スクロールなどで"進む"ときは座標に対して負の値を加算します
+   * 逆に"戻る"ときは座標に対して正の値を加算します
+   */
+  const { lockScroll, unlockScroll } = useWindowScrollLock()
 
   // スムーススクロールのロジックをスロットル化
   const throttledSmoothScroll = useThrottleFn(
-    (honbun: HTMLElement, moving: number) => {
-      smoothScroll(honbun, moving)
+    async (el: HTMLElement, amount: number) => {
+      await smoothScroll(el, amount, {
+        direction: 'horizontal',
+        mode: 'speed',
+        speedPerMs: 20,
+        timeout: 2000,
+        onStart: () => lockScroll(),
+        onFinish: () => unlockScroll(),
+      })
     },
-    300
+    200
   )
 
-  function onWheelScroll(e: WheelEvent) {
-    const pNovel = pNovelRef.value
-    if (!pNovel) return
-
-    // optionRef.value を参照
-    const movelr = e.deltaY > 0 ? -1 : 1
-    const amount: number = optionRef.value.wheelReverse
-      ? optionRef.value.scrollAmount
-      : -optionRef.value.scrollAmount
-
-    const moving = pNovel.scrollLeft - amount * movelr
-    throttledSmoothScroll(pNovel, moving)
-    e.preventDefault()
+  function onWheelScroll(el: HTMLElement) {
+    return function (e: WheelEvent) {
+      const { wheelReverse, scrollAmount } = optionRef.value
+      const direction = e.deltaY > 0 ? 1 : -1
+      const baseAmount = wheelReverse ? scrollAmount : -scrollAmount
+      const amount = baseAmount * direction
+      throttledSmoothScroll(el, amount)
+      e.preventDefault()
+    }
   }
 
-  function onDoubleClick(e: Event) {
-    const pNovel = pNovelRef.value
-    if (!pNovel) return
-
-    // dblclick でスクロールをリセット
-    pNovel.scrollIntoView({ inline: 'start', behavior: 'smooth' })
-    e.preventDefault()
+  function onDoubleClick(el: HTMLElement) {
+    return async function (e: Event) {
+      e.preventDefault()
+      scrollWithFixedOffset(el, getFixedElementsTotalHeight())
+    }
   }
-
-  /** イベントリスナーを本文要素にアタッチする */
   function attachNovelEvents() {
     const pNovel = pNovelRef.value
     if (!pNovel) return
-    pNovel.addEventListener('wheel', onWheelScroll as EventListener)
-    pNovel.addEventListener('dblclick', onDoubleClick)
+    pNovel.addEventListener('wheel', onWheelScroll(pNovel))
+    pNovel.addEventListener('dblclick', onDoubleClick(pNovel))
   }
-
-  // イベント削除用のcleanup関数も提供すると良いですが、ここでは省略します。
 
   return {
     attachNovelEvents,
-    onWheelScroll, // 必要なら公開
+    // onWheelScroll, // 必要なら公開
   }
 }

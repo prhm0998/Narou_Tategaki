@@ -32,7 +32,7 @@ interface RangeOption extends BaseOption {
 
 type OptionItem = BoolOption | RangeOption;
 
-// 💡 新しい単一のオプションリスト (希望の表示順に配置)
+// 💡 新しい単一のオプションリスト
 const optionsList: OptionItem[] = [
   // 1. マウスホイールを反転する (Boolean)
   {
@@ -46,7 +46,7 @@ const optionsList: OptionItem[] = [
     key: 'scrollAmount',
     label: 'スクロール量',
     min: 10,
-    max: 400,
+    max: 2000,
     step: 10,
     updateTrigger: 'change',
     unit: 'px',
@@ -99,12 +99,12 @@ const isRangeOption = (option: OptionItem): option is RangeOption => option.type
       <span>User Option Management</span>
     </h2>
 
-    <div v-if="state" class="flex flex-col flex-grow gap-2">
+    <div v-if="state" class="flex flex-col gap-2 grow">
       <template v-for="option in optionsList" :key="option.key">
         <div v-if="option.type === 'bool'" class="cursor-pointer flex gap-1 items-center select-none text-sm">
           <label class="cursor-pointer flex gap-1 items-center">
             <input type="checkbox"
-              class="appearance-none bg-white border-2 border-black checked:bg-indigo-600 flex-shrink-0 h-4 rounded w-4"
+              class="appearance-none bg-white border-2 border-black checked:bg-indigo-600 h-4 rounded shrink-0 w-4"
               :checked="state[option.key]" @click="updateState({ type: 'toggle', subKey: option.key })" />
             {{ option.label }}
           </label>

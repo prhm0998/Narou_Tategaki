@@ -15,8 +15,8 @@ importers:
         specifier: ^0.28.1722795431
         version: 0.28.1754900467(vue@3.5.22(typescript@5.6.3))
       '@prhm0998/shared':
-        specifier: github:prhm0998/shared#v1.0.3
-        version: https://codeload.github.com/prhm0998/shared/tar.gz/3718a539eb23fdce3c100ad66cd3e6b39338ae84(vue@3.5.22(typescript@5.6.3))
+        specifier: github:prhm0998/shared#v1.0.4
+        version: https://codeload.github.com/prhm0998/shared/tar.gz/38dd2e685f7cacd2881da0124539547fb0fb2912(vue@3.5.22(typescript@5.6.3))
       '@tailwindcss/vite':
         specifier: ^4.1.13
         version: 4.1.16(vite@7.1.12(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2))
@@ -32,6 +32,9 @@ importers:
       '@wxt-dev/module-vue':
         specifier: ^1.0.1
         version: 1.0.3(vite@7.1.12(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2))(vue@3.5.22(typescript@5.6.3))(wxt@0.20.11(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.52.5)(sass@1.93.2))
+      consola:
+        specifier: ^3.4.2
+        version: 3.4.2
       daisyui:
         specifier: ^5.1.10
         version: 5.3.10
@@ -60,6 +63,9 @@ importers:
       '@octokit/rest':
         specifier: ^22.0.0
         version: 22.0.0
+      '@stylistic/eslint-plugin':
+        specifier: ^5.5.0
+        version: 5.5.0(eslint@9.38.0(jiti@2.6.1))
       '@types/chrome':
         specifier: ^0.0.280
         version: 0.0.280
@@ -77,7 +83,7 @@ importers:
         version: 9.38.0(jiti@2.6.1)
       eslint-plugin-vue:
         specifier: ^10.4.0
-        version: 10.5.1(@typescript-eslint/parser@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.6.3))(eslint@9.38.0(jiti@2.6.1))(vue-eslint-parser@10.2.0(eslint@9.38.0(jiti@2.6.1)))
+        version: 10.5.1(@stylistic/eslint-plugin@5.5.0(eslint@9.38.0(jiti@2.6.1)))(@typescript-eslint/parser@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.6.3))(eslint@9.38.0(jiti@2.6.1))(vue-eslint-parser@10.2.0(eslint@9.38.0(jiti@2.6.1)))
       fs:
         specifier: 0.0.1-security
         version: 0.0.1-security
@@ -687,9 +693,9 @@ packages:
     resolution: {integrity: sha512-c83qWb22rNRuB0UaVCI0uRPNRr8Z0FWnEIvT47jiHAmOIUHbBOg5XvV7pM5x+rKn9HRpjxquDbXYSXr3fAKFcw==}
     engines: {node: '>=12'}
 
-  '@prhm0998/shared@https://codeload.github.com/prhm0998/shared/tar.gz/3718a539eb23fdce3c100ad66cd3e6b39338ae84':
-    resolution: {tarball: https://codeload.github.com/prhm0998/shared/tar.gz/3718a539eb23fdce3c100ad66cd3e6b39338ae84}
-    version: 1.0.3
+  '@prhm0998/shared@https://codeload.github.com/prhm0998/shared/tar.gz/38dd2e685f7cacd2881da0124539547fb0fb2912':
+    resolution: {tarball: https://codeload.github.com/prhm0998/shared/tar.gz/38dd2e685f7cacd2881da0124539547fb0fb2912}
+    version: 1.0.4
     peerDependencies:
       vue: ^3.5.22
 
@@ -805,6 +811,12 @@ packages:
     resolution: {integrity: sha512-TAcgQh2sSkykPRWLrdyy2AiceMckNf5loITqXxFI5VuQjS5tSuw3WlwdN8qv8vzjLAUTvYaH/mVjSFpbkFbpTg==}
     cpu: [x64]
     os: [win32]
+
+  '@stylistic/eslint-plugin@5.5.0':
+    resolution: {integrity: sha512-IeZF+8H0ns6prg4VrkhgL+yrvDXWDH2cKchrbh80ejG9dQgZWp10epHMbgRuQvgchLII/lfh6Xn3lu6+6L86Hw==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      eslint: '>=9.0.0'
 
   '@tailwindcss/node@4.1.16':
     resolution: {integrity: sha512-BX5iaSsloNuvKNHRN3k2RcCuTEgASTo77mofW0vmeHkfrDWaoFAFvNHpEgtu0eqyypcyiBkDWzSMxJhp3AUVcw==}
@@ -3195,7 +3207,7 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@prhm0998/shared@https://codeload.github.com/prhm0998/shared/tar.gz/3718a539eb23fdce3c100ad66cd3e6b39338ae84(vue@3.5.22(typescript@5.6.3))':
+  '@prhm0998/shared@https://codeload.github.com/prhm0998/shared/tar.gz/38dd2e685f7cacd2881da0124539547fb0fb2912(vue@3.5.22(typescript@5.6.3))':
     dependencies:
       defu: 6.1.4
       vue: 3.5.22(typescript@5.6.3)
@@ -3267,6 +3279,16 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.52.5':
     optional: true
+
+  '@stylistic/eslint-plugin@5.5.0(eslint@9.38.0(jiti@2.6.1))':
+    dependencies:
+      '@eslint-community/eslint-utils': 4.9.0(eslint@9.38.0(jiti@2.6.1))
+      '@typescript-eslint/types': 8.46.2
+      eslint: 9.38.0(jiti@2.6.1)
+      eslint-visitor-keys: 4.2.1
+      espree: 10.4.0
+      estraverse: 5.3.0
+      picomatch: 4.0.3
 
   '@tailwindcss/node@4.1.16':
     dependencies:
@@ -3970,7 +3992,7 @@ snapshots:
 
   escape-string-regexp@5.0.0: {}
 
-  eslint-plugin-vue@10.5.1(@typescript-eslint/parser@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.6.3))(eslint@9.38.0(jiti@2.6.1))(vue-eslint-parser@10.2.0(eslint@9.38.0(jiti@2.6.1))):
+  eslint-plugin-vue@10.5.1(@stylistic/eslint-plugin@5.5.0(eslint@9.38.0(jiti@2.6.1)))(@typescript-eslint/parser@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.6.3))(eslint@9.38.0(jiti@2.6.1))(vue-eslint-parser@10.2.0(eslint@9.38.0(jiti@2.6.1))):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.0(eslint@9.38.0(jiti@2.6.1))
       eslint: 9.38.0(jiti@2.6.1)
@@ -3981,6 +4003,7 @@ snapshots:
       vue-eslint-parser: 10.2.0(eslint@9.38.0(jiti@2.6.1))
       xml-name-validator: 4.0.0
     optionalDependencies:
+      '@stylistic/eslint-plugin': 5.5.0(eslint@9.38.0(jiti@2.6.1))
       '@typescript-eslint/parser': 8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.6.3)
 
   eslint-scope@8.4.0:

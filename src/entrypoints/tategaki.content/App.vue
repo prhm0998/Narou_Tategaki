@@ -2,7 +2,6 @@
 import { onMounted } from 'vue'
 const { state: option } = useUserOption()
 const { modifyContents } = useNovelModifier(option)
-
 onMounted(() => modifyContents())
 </script>
 

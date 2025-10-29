@@ -1,6 +1,5 @@
 // novelDOMUtils.ts
-
-import { traverseTextNodes, latinToZenkaku } from '@prhm0998/shared/utils'
+import { traverseTextNodes, latinToZenkaku, getFixedElementsTotalHeight, scrollWithFixedOffset } from '@prhm0998/shared/utils'
 
 /** l-main の基本的なスタイルを設定する */
 export async function updateLmainStyle(lMain: HTMLElement) {
@@ -26,21 +25,15 @@ export function updateHonbunStyles(pNovel: HTMLElement, option: UserOption) {
   pNovel.style.padding = '0'
   pNovel.style.margin = '0'
 
-  // 💡 リアクティブ対応の準備：heightのロジックは watch で管理するため、
-  // ここではオプション値を受け取るように変更
   if (option.expandHeight) {
     pNovel.style.height = `${option.viewportHeight}vh`
-  }
-  else {
-    pNovel.style.height = '' // expandHeightが無効ならリセット
   }
 }
 
 /** 初期ロード時のオプション処理を適用する */
 export function handleOnloadOptions(pNovel: HTMLElement, option: UserOption) {
   if (option.fixedOnload) {
-    // スムーズスクロールを適用
-    pNovel.scrollIntoView({ inline: 'start', behavior: 'smooth' })
+    scrollWithFixedOffset(pNovel, getFixedElementsTotalHeight())
   }
   if (option.latinToZen) {
     // テキストノードを走査して変換
