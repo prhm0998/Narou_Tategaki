@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+
 const { state: option } = useUserOption()
 const { modifyContents } = useNovelModifier(option)
 onMounted(() => modifyContents())
@@ -10,6 +11,15 @@ onMounted(() => modifyContents())
 </template>
 
 <style lang="scss">
+.ext-stimulate-pagerize {
+  display: none !important;
+}
+
+.p-novel__title,
+.p-novel__author {
+  white-space: normal;
+}
+
 .p-novel__number {
   text-align: left !important;
   margin-top: 32px !important;

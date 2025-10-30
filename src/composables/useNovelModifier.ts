@@ -2,16 +2,32 @@
 
 import { waitElement } from '@1natsu/wait-element'
 import { latinToZenkaku, sleep, traverseTextNodes } from '@prhm0998/shared/utils'
-import { watch, ref, type Ref } from 'vue'
-import { useNovelScroll } from './useNovelScroll' // 新しいComposablesをインポート
+import { useIntersectionObserver } from '@vueuse/core'
+import consola from 'consola'
+import { watch, ref } from 'vue'
+import type { Ref } from 'vue'
+
+import { addTemporarilyClassToNextSiblings } from '@/utils/addTemprarilyClassToNextsiblings'
+
+import { useNovelScroll } from './useNovelScroll'
 import type { UserOption } from './useUserOption'
-import { useEdgeScrollObserver, useWindowScrollLock } from '@prhm0998/shared/composables'
 
 export function useNovelModifier(optionRef: Ref<UserOption>) {
   const pNovel = ref<HTMLElement | null>(null)
   const { attachNovelEvents } = useNovelScroll(pNovel, optionRef)
-  const { setupObserver, resumeObserver } = useEdgeScrollObserver(pNovel, 'horizontal', 500, scrollToBottomAndBack)
-  const { lockScroll, unlockScroll } = useWindowScrollLock()
+
+  const lastEpisodeRef = ref<HTMLElement | null>(document.querySelector<HTMLElement>('.p-novel__body'))
+  const { pause: stimulatorPause, resume: stimulatorResume, stop: stimulatorStop } = useIntersectionObserver(
+    [lastEpisodeRef],
+    async ([entry]) => {
+      if (entry.isIntersecting) {
+        stimulatorPause()
+        await stimulatePagerize()
+        await sleep(1000)
+      }
+    }
+  )
+  stimulatorPause() //一旦停止しておく
 
   /** ページロード時の一連のコンテンツ操作を実行する */
   async function modifyContents() {
@@ -29,7 +45,7 @@ export function useNovelModifier(optionRef: Ref<UserOption>) {
 
     await sleep(1) //optionの取得待ち時間
 
-    // 💡 DOM操作
+    // DOM操作
     updateHonbunStyles(pNovel.value, optionRef.value)
     moveTocToEnd(pNovel.value)
     handleOnloadOptions(pNovel.value, optionRef.value)
@@ -37,12 +53,23 @@ export function useNovelModifier(optionRef: Ref<UserOption>) {
     // イベント設定
     attachNovelEvents()
     setupAutoPagerize()
-    setupObserver()
+
+    if (optionRef.value.autoPagerizer) {
+      stimulatorResume()
+    }
+    else {
+      consola.error('stimulator is stop')
+      stimulatorStop()
+    }
   }
 
-  // ----------------------------------------------------
-  // 💡 将来的にオプションの反映箇所をリアクティブにする
-  // ----------------------------------------------------
+  /** autoPagerizeを反応させる */
+  async function stimulatePagerize() {
+    if (!optionRef.value.autoPagerizer) return
+    if (pNovel.value) {
+      await addTemporarilyClassToNextSiblings(pNovel.value, 'ext-stimulate-pagerize', 20)
+    }
+  }
 
   // 1. viewportHeight と expandHeight の監視
   watch(
@@ -56,24 +83,9 @@ export function useNovelModifier(optionRef: Ref<UserOption>) {
     { deep: true, immediate: true } // immediate: true で初期反映も兼ねる
   )
 
-  /** ウィンドウを最下部にスクロールし、すぐに元の位置に戻す autoPagerizeを反応させる */
-  async function scrollToBottomAndBack() {
-    if (!optionRef.value.autoPagerizer) return
-    // 💡 実行前にウィンドウのスクロールをロック
-    lockScroll()
-    const originalY = window.scrollY
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' })
-    setTimeout(() => {
-      window.scrollTo({ top: originalY, behavior: 'instant' })
-    }, 0)
-    setTimeout(() => {
-      unlockScroll()
-    }, 0)
-  }
-
   /** AutoPagerize 対応：追加本文を縦書き要素に結合し、オプションを適用する */
   function setupAutoPagerize() {
-    addEventListener('AutoPagerize_DOMNodeInserted', ((e: CustomEvent) => { // CustomEventとして扱う
+    addEventListener('AutoPagerize_DOMNodeInserted', (async (e: CustomEvent) => { // CustomEventとして扱う
       if (!pNovel.value || !optionRef.value.autoPagerizer) return // pNovelがないか、オプションが無効なら処理しない
       const el = e.target
       if (!(el instanceof HTMLElement)) return
@@ -85,20 +97,28 @@ export function useNovelModifier(optionRef: Ref<UserOption>) {
       if (!novel) return
 
       // 必要な子要素を取得
-      const pager = novel.querySelector('.c-pager')
-      const siori = novel.querySelector('.p-novel__number')
-      const title = novel.querySelector('.p-novel__title')
-      const body = novel.querySelector('.p-novel__body')
+      const [title, body, siori, pager] = await Promise.all([
+        waitElement<HTMLElement>('.p-novel__title', { target: novel }),
+        waitElement<HTMLElement>('.p-novel__body', { target: novel }),
+        waitElement<HTMLElement>('.p-novel__number', { target: novel }),
+        waitElement<HTMLElement>('.c-pager', { target: novel }),
+      ])
 
-      if (pager && siori && title && body) {
+      if (title && body && siori && pager) {
         if (optionRef.value.latinToZen) {
           traverseTextNodes(siori, latinToZenkaku)
           traverseTextNodes(body, latinToZenkaku)
         }
         pNovel.value.append(siori, title, body, pager)
+        if (optionRef.value.autoPagerizer) {
+          // 追加の話数の読み込みは1秒一話にゆるく制限する
+          // ※Resumeが早すぎると動作が不安定になる、autoPagerizeの読み込み速度の制限があるのかも
+          lastEpisodeRef.value = body
+          await sleep(1000)
+          stimulatorResume()
+        }
       }
-      resumeObserver()
-    }) as EventListener) // EventListenerとしてキャストして警告を回避
+    }) as unknown as EventListener) // EventListenerとしてキャストして警告を回避
   }
 
   return {

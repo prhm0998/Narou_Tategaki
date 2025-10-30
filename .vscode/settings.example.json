@@ -10,6 +10,6 @@
     "package.json": "json"
   },
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "javascript.preferences.importModuleSpecifier": "non-relative",
-  "typescript.preferences.preferTypeOnlyAutoImports": true
+  "javascript.preferences.importModuleSpecifier": "non-relative"
+  //"typescript.preferences.preferTypeOnlyAutoImports": true
 }

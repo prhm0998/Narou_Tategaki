@@ -1,9 +1,10 @@
 import js from '@eslint/js'
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
-import pluginVue from 'eslint-plugin-vue'
 import stylistic from '@stylistic/eslint-plugin'
 import { defineConfig } from 'eslint/config'
+import pluginImport from 'eslint-plugin-import'
+import pluginVue from 'eslint-plugin-vue'
+import globals from 'globals'
+import tseslint from 'typescript-eslint'
 
 export default defineConfig([
   {
@@ -16,13 +17,14 @@ export default defineConfig([
   // 共通設定: JS/TS/Vue全般
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
-    plugins: { js },
+    plugins: { js, import: pluginImport },
     extends: ['js/recommended'],
     languageOptions: {
       globals: globals.node,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     rules: {
@@ -41,18 +43,46 @@ export default defineConfig([
       'no-unused-vars': 'off',
       'no-undef': 'off',
       'no-trailing-spaces': 'warn',
-      'quotes': ['error', 'single'],
+      quotes: ['error', 'single'],
       'function-paren-newline': ['error', 'consistent'],
       'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0, maxBOF: 0 }],
-      'semi': ['error', 'never', { beforeStatementContinuationChars: 'never' }],
+      semi: ['error', 'never', { beforeStatementContinuationChars: 'never' }],
       'semi-spacing': ['error', { after: true, before: false }],
       'semi-style': ['error', 'first'],
       'no-extra-semi': 'error',
       'no-unexpected-multiline': 'error',
       'no-unreachable': 'error',
-      // 'prefer-const': 'off',
       'prefer-const': 'off',
       '@stylistic/indent-binary-ops': 'off',
+      'import/order': [
+        'error',
+        {
+          groups: [
+            'builtin',           // Node.js組み込みモジュール (例: 'fs', 'path')
+            'external',          // 外部ライブラリ/npmパッケージ
+            'internal',          // プロジェクト内の絶対パスインポート/エイリアス (例: '@/components')
+            'parent',            // 親ディレクトリへの相対パス (例: '../')
+            'sibling',           // 兄弟ファイルへの相対パス (例: './')
+            'index',             // 同じディレクトリのindexファイル (例: './')
+            'object',            // オブジェクトインポート (非推奨な場合あり)
+          ],
+          'newlines-between': 'always', // グループ間に空行を強制
+          alphabetize: {
+            order: 'asc',             // 各グループ内でアルファベット順にソート
+            caseInsensitive: true,
+            orderImportKind: 'desc', // 同じ
+          },
+          pathGroups: [
+            {
+              pattern: '@/**',
+              group: 'internal',
+            },
+          ],
+          pathGroupsExcludedImportTypes: ['builtin'],
+        },
+      ],
+      '@typescript-eslint/consistent-type-imports': 'error',
+      'quote-props': ['error', 'as-needed'], //''で囲む必要のないプロパティは'を外す
     },
   },
 
