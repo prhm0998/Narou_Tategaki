@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import useUserOption, { BooleanKeys, NumberKeys } from '@/composables/useUserOption'
-import RangeInput from './RangeInput.vue'
+import type { BooleanKeys, NumberKeys } from '@/composables/useUserOption'
+import useUserOption from '@/composables/useUserOption'
 
+import RangeInput from './RangeInput.vue'
 const { state, updateState } = useUserOption()
 
 /**
@@ -63,9 +64,9 @@ const optionsList: OptionItem[] = [
     type: 'range',
     key: 'viewportHeight',
     label: '本文領域の高さ',
-    min: 4,
+    min: 2,
     max: 100,
-    step: 4,
+    step: 2,
     disabledKey: 'expandHeight', // expandHeight が false の場合に無効化
     updateTrigger: 'input',
     unit: '%',

@@ -1,4 +1,5 @@
-import { useGenericStore, type UpdateStateFn } from '@prhm0998/shared/composables'
+import { useGenericStore } from '@prhm0998/shared/composables'
+import type { UpdateStateFn } from '@prhm0998/shared/composables'
 
 export interface UserOption {
   wheelReverse: boolean

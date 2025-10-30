@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import UserOption from '@/components/useroption/UserOption.vue'
 import { IconGear } from '@iconify-prerendered/vue-pepicons-pop'
+
+import UserOption from '@/components/useroption/UserOption.vue'
 
 export interface TabType {
   key: StorageItemKey,

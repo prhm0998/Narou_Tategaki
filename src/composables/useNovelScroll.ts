@@ -1,10 +1,11 @@
 // useNovelScroll.ts
 
+import { useWindowScrollLock } from '@prhm0998/shared/composables'
+import { getFixedElementsTotalHeight, scrollWithFixedOffset, smoothScroll } from '@prhm0998/shared/utils'
 import { useThrottleFn } from '@vueuse/core'
 import type { Ref } from 'vue'
+
 import type { UserOption } from './useUserOption'
-import { getFixedElementsTotalHeight, scrollWithFixedOffset, smoothScroll } from '@prhm0998/shared/utils'
-import { useWindowScrollLock } from '@prhm0998/shared/composables'
 
 /**
  * 本文のカスタムスクロールとイベント処理を提供するComposables
