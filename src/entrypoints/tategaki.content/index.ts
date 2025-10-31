@@ -2,6 +2,7 @@ import { waitElement } from '@1natsu/wait-element'
 import { createApp } from 'vue'
 
 import App from './App.vue'
+
 export default defineContentScript({
   //https://ncode.syosetu.com/n9669bk/2/
   matches: [

@@ -1,14 +1,14 @@
 type RangeInputProps = {
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  disabled?: boolean;
-  updateTrigger?: 'input' | 'change';
+  value: number
+  min: number
+  max: number
+  step: number
+  disabled?: boolean
+  updateTrigger?: 'input' | 'change'
 };
 
 type RangeInputEmit = {
-  (e: 'update:value', value: number): void;
+  (e: 'update:value', value: number): void
 };
 
 export function useRangeInput(props: RangeInputProps, emit: RangeInputEmit) {
