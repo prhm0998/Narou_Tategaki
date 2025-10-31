@@ -4,7 +4,7 @@ import { IconGear } from '@iconify-prerendered/vue-pepicons-pop'
 import UserOption from '@/components/useroption/UserOption.vue'
 
 export interface TabType {
-  key: StorageItemKey,
+  key: StorageItemKey
   name: 'Option'
 }
 

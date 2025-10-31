@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { BooleanKeys, NumberKeys } from '@/composables/useUserOption'
 import useUserOption from '@/composables/useUserOption'
+import type { BooleanKeys, NumberKeys } from '@/composables/useUserOption'
 
 import RangeInput from './RangeInput.vue'
+
 const { state, updateState } = useUserOption()
 
 /**
@@ -10,25 +11,25 @@ const { state, updateState } = useUserOption()
  * RangeInputのプロパティを 'range' タイプに追加しています
  */
 interface BaseOption {
-  label: string;
-  key: BooleanKeys | NumberKeys;
+  label: string
+  key: BooleanKeys | NumberKeys
 }
 
 interface BoolOption extends BaseOption {
-  type: 'bool';
-  key: BooleanKeys;
+  type: 'bool'
+  key: BooleanKeys
 }
 
 interface RangeOption extends BaseOption {
-  type: 'range';
-  key: NumberKeys;
-  min: number;
-  max: number;
-  step: number;
+  type: 'range'
+  key: NumberKeys
+  min: number
+  max: number
+  step: number
   // RangeInputの :disabled に対応するキー
-  disabledKey?: BooleanKeys;
-  updateTrigger: 'input' | 'change';
-  unit: string; // 表示用の単位
+  disabledKey?: BooleanKeys
+  updateTrigger: 'input' | 'change'
+  unit: string // 表示用の単位
 }
 
 type OptionItem = BoolOption | RangeOption;

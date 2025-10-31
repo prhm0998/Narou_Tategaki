@@ -7,8 +7,8 @@ export interface UserOption {
   expandHeight: boolean
   latinToZen: boolean
   autoPagerizer: boolean
-  scrollAmount: number,
-  viewportHeight: number,
+  scrollAmount: number
+  viewportHeight: number
 }
 
 export type BooleanKeys = { [K in keyof UserOption]: UserOption[K] extends boolean ? K : never
@@ -20,12 +20,12 @@ export type NumberKeys = {
 
 type UserOptionUpdateEvent =
   | {
-    type: 'toggle',
+    type: 'toggle'
     subKey: BooleanKeys
   }
   | {
-    type: 'set',
-    subKey: NumberKeys,
+    type: 'set'
+    subKey: NumberKeys
     value: number
   }
 
