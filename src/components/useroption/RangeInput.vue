@@ -18,7 +18,7 @@ const { internalValue, handleUpdate } = useRangeInput(props, emit)
 </script>
 
 <template>
-  <div class="flex font-bold ml-1 mt-2 text-sm">
+  <div class="flex my-1">
     <slot></slot>
     <input type="range" :value="internalValue" :min="min" :max="max" :step="step" :disabled="disabled" class="ml-auto"
       @input="handleUpdate('input', $event)" @change="handleUpdate('change', $event)" />
