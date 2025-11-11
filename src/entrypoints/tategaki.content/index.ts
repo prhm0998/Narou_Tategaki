@@ -21,8 +21,8 @@ export default defineContentScript({
     /**
      * 単発小説の場合URLのみでは判断がつかないため、それっぽい要素を探索する
      */
-    const body = await waitElement('.p-novel__body', { signal: AbortSignal.timeout(2000) })
-      .catch(null)
+    const body = await waitElement('.p-novel__body', { signal: AbortSignal.timeout(1000) })
+      .catch(() => { })
     if (!body) return
     const ui = createIntegratedUi(ctx, {
       position: 'inline',

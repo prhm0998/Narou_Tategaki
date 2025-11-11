@@ -1,3 +1,5 @@
+// useRangeInput.ts
+
 type RangeInputProps = {
   value: number
   min: number

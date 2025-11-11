@@ -3,7 +3,6 @@
 import { waitElement } from '@1natsu/wait-element'
 import { latinToZenkaku, sleep, traverseTextNodes } from '@prhm0998/shared/utils'
 import { useIntersectionObserver } from '@vueuse/core'
-import consola from 'consola'
 import { watch, ref } from 'vue'
 import type { Ref } from 'vue'
 
@@ -14,12 +13,11 @@ import type { UserOption } from './useUserOption'
 
 export function useNovelModifier(optionRef: Ref<UserOption>) {
   const pNovel = ref<HTMLElement | null>(null)
-  const { attachNovelEvents } = useNovelScroll(pNovel, optionRef)
+  const { attachNovelEvents, insertRowElm } = useNovelScroll(pNovel)
 
   const lastEpisodeRef = ref<HTMLElement | null>(document.querySelector<HTMLElement>('.p-novel__body'))
   const { pause: stimulatorPause, resume: stimulatorResume, stop: stimulatorStop } = useIntersectionObserver(
-    [lastEpisodeRef],
-    async ([entry]) => {
+    [lastEpisodeRef], async ([entry]) => {
       if (entry.isIntersecting) {
         stimulatorPause()
         await stimulatePagerize()
@@ -54,11 +52,21 @@ export function useNovelModifier(optionRef: Ref<UserOption>) {
     attachNovelEvents()
     setupAutoPagerize()
 
+    // 必要な子要素を取得
+    const [title, body] = await Promise.all([
+      waitElement<HTMLElement>('.p-novel__title', { target: pNovel.value }),
+      waitElement<HTMLElement>('.p-novel__body', { target: pNovel.value }),
+    ])
+    const bodyRows = body.querySelectorAll('p')
+
+    // すべての列を登録(スクロール用)
+    const allRows = [title, ...bodyRows]
+    allRows.forEach(insertRowElm)
+
     if (optionRef.value.autoPagerizer) {
       stimulatorResume()
     }
     else {
-      consola.error('stimulator is stop')
       stimulatorStop()
     }
   }
@@ -73,14 +81,12 @@ export function useNovelModifier(optionRef: Ref<UserOption>) {
 
   // 1. viewportHeight と expandHeight の監視
   watch(
-    [() => optionRef.value.viewportHeight, () => optionRef.value.expandHeight],
-    () => {
+    [() => optionRef.value.viewportHeight, () => optionRef.value.expandHeight], () => {
       if (pNovel.value) {
         // 変更があったらスタイルを再適用
         updateHonbunStyles(pNovel.value, optionRef.value)
       }
-    },
-    { deep: true, immediate: true } // immediate: true で初期反映も兼ねる
+    }, { deep: true, immediate: true } // immediate: true で初期反映も兼ねる
   )
 
   /** AutoPagerize 対応：追加本文を縦書き要素に結合し、オプションを適用する */
@@ -117,6 +123,11 @@ export function useNovelModifier(optionRef: Ref<UserOption>) {
           await sleep(1000)
           stimulatorResume()
         }
+        const bodyRows = body.querySelectorAll('p')
+        // すべての列を登録(スクロール用)
+        const allRows = [title, ...bodyRows]
+        allRows.forEach(insertRowElm)
+
       }
     }) as unknown as EventListener) // EventListenerとしてキャストして警告を回避
   }
