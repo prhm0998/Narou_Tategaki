@@ -2,6 +2,7 @@
 
 import { useGenericStore } from '@prhm0998/shared/composables'
 import type { UpdateStateFn } from '@prhm0998/shared/composables'
+import { applyDefaultProperties } from '@prhm0998/shared/utils'
 
 export interface UserOption {
   wheelReverse: boolean
@@ -62,7 +63,7 @@ const deserialize = (jsonString: string): UserOption => {
     if (parsed.scrollAmount) delete parsed.scrollAmount
 
     // jsonにないプロパティはデフォルトから持ってくる
-    return Object.assign({}, base, parsed)
+    return applyDefaultProperties(base, parsed)
   }
   catch {
     return getDefaultState()
