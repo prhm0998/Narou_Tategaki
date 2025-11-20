@@ -13,7 +13,7 @@ import type { UserOption } from './useUserOption'
 
 export function useNovelModifier(optionRef: Ref<UserOption>) {
   const pNovel = ref<HTMLElement | null>(null)
-  const { attachNovelEvents, insertRowElm } = useNovelScroll(pNovel)
+  const { attachNovelEvents, addLine } = useNovelScroll(pNovel)
 
   const lastEpisodeRef = ref<HTMLElement | null>(document.querySelector<HTMLElement>('.p-novel__body'))
   const { pause: stimulatorPause, resume: stimulatorResume, stop: stimulatorStop } = useIntersectionObserver(
@@ -21,7 +21,6 @@ export function useNovelModifier(optionRef: Ref<UserOption>) {
       if (entry.isIntersecting) {
         stimulatorPause()
         await stimulatePagerize()
-        await sleep(1000)
       }
     }
   )
@@ -61,7 +60,7 @@ export function useNovelModifier(optionRef: Ref<UserOption>) {
 
     // すべての列を登録(スクロール用)
     const allRows = [title, ...bodyRows]
-    allRows.forEach(insertRowElm)
+    allRows.forEach(addLine)
 
     if (optionRef.value.autoPagerizer) {
       stimulatorResume()
@@ -126,7 +125,7 @@ export function useNovelModifier(optionRef: Ref<UserOption>) {
         const bodyRows = body.querySelectorAll('p')
         // すべての列を登録(スクロール用)
         const allRows = [title, ...bodyRows]
-        allRows.forEach(insertRowElm)
+        allRows.forEach(addLine)
 
       }
     }) as unknown as EventListener) // EventListenerとしてキャストして警告を回避

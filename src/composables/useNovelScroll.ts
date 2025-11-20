@@ -9,9 +9,12 @@ export function useNovelScroll(pNovelRef: Ref<HTMLElement | null>) {
   const { state: userOption } = useUserOption()
 
   // 行移動の管理用
-  const novelRowsSet = ref(new Set<HTMLElement>())
-  const novelRows = computed(() => [...novelRowsSet.value])
-  const insertRowElm = (el: HTMLElement) => novelRowsSet.value.add(el)
+  const linesSet = ref(new Set<HTMLElement>())
+  const lines = computed(() => [...linesSet.value])
+  const addLine = (el: HTMLElement) => linesSet.value.add(el)
+
+  const lastKnownFirstIndex = ref<number | undefined>(undefined) // startSearchIndexに利用
+  const lastKnownStep = ref<number>(1) // stepに利用 (デフォルトは1)
 
   function attachNovelEvents() {
     const pNovel = pNovelRef.value
@@ -78,46 +81,86 @@ export function useNovelScroll(pNovelRef: Ref<HTMLElement | null>) {
     await scrollToTargetRow(...args)
   }, 200)
 
+  function runSearch(startSearchIndex?: number, step?: number): [number, number] | null {
+    return getVisibleRowRange({
+      startSearchIndex,
+      step,
+    })
+  }
+
   async function scrollToTargetRow(direction: 1 | -1, amount?: number | null) {
-    const search = getVisibleRowRange()
+    let search = runSearch(lastKnownFirstIndex.value, lastKnownStep.value)
+
+    if (!search && lastKnownStep.value > 1) {
+      search = runSearch(lastKnownFirstIndex.value)
+    }
+
     if (!search) {
       return
     }
+
+    const [first, last] = search
+    lastKnownFirstIndex.value = first
+    lastKnownStep.value = flexibleClamp(Math.floor((last - first) / 2), { min: 1 })
 
     let targetIndex: number
     // 現在は end=ページ戻りの判定用, 将来的にscroll後のターゲットの位置の指定にするつもり
     let block: 'start' | 'end'
 
+    const linesArray = lines.value // DOM要素の配列
+
     if (amount) {
-      const [first] = search
       targetIndex = flexibleClamp(first + amount, {
         min: 0,
-        max: novelRows.value.length - 1,
+        max: linesArray.length - 1,
       })
       block = 'start'
     }
 
     else {
       if (direction === 1) {
-        const [, last] = search
         targetIndex = flexibleClamp(last + 1, {
           min: 0,
-          max: novelRows.value.length - 1,
+          max: linesArray.length - 1,
         })
         block = 'start'
       }
       else {
-        const [first] = search
         targetIndex = flexibleClamp(first - 1, {
           min: 0,
-          max: novelRows.value.length - 1,
+          max: linesArray.length - 1,
         })
         block = 'end'
       }
     }
 
+    // スクロール移動の間の要素にタイトルがあればそこをtargetにする
+    if (block === 'start' && first !== targetIndex) {
+      if (direction === 1) {
+        for (let i = first + 1; i <= targetIndex - 1; i++) {
+          if (i < 0 || i >= linesArray.length) break // 配列の範囲外チェック
+          const element = linesArray[i]
+          if (element.tagName === 'H1') {
+            targetIndex = i
+            break
+          }
+        }
+      }
+      else if (direction === -1) {
+        for (let i = first - 1; i >= targetIndex + 1; i--) {
+          if (i < 0 || i >= linesArray.length) break // 配列の範囲外チェック
+          const element = linesArray[i]
+          if (element.tagName === 'H1') {
+            targetIndex = i
+            break
+          }
+        }
+
+      }
+    }
+
     if (pNovelRef.value) {
-      performHorizontalScroll(pNovelRef.value, novelRows.value[targetIndex], block)
+      performHorizontalScroll(pNovelRef.value, linesArray[targetIndex], block)
     }
   }
 
@@ -144,52 +187,89 @@ export function useNovelScroll(pNovelRef: Ref<HTMLElement | null>) {
     }
   }
 
+  interface VisibleRangeOptions {
+    /** 探索開始のヒントとなるインデックス */
+    startSearchIndex?: number
+    /** 通常探索時のインクリメント量 (デフォルト: 1) */
+    step?: number
+  }
+
   /**
    * 連続した可視/非可視要素の配列から
    * [最初に見えている要素のindex, 最後に見えている要素のindex] を返します
    *
-   * 配列中の可視要素は連続した一つの塊であることを前提とします
+   * 配列中の可視要素は連続した一つの塊のみであることを前提とします
    */
-  function getVisibleRowRange(): [number, number] | null {
-    const n = novelRows.value.length
+  function getVisibleRowRange(options: VisibleRangeOptions = {}): [number, number] | null {
+    const n = lines.value.length
     if (n === 0) return null
 
-    let startIndex = 0
+    const { startSearchIndex, step = 1 } = options
 
-    // 最初に見えている要素のindexの探索
-    let firstVisibleIndex = null
-    for (let i = startIndex; i < n; i++) {
-      const current = novelRows.value[i]
-      if (isElementInView(current, {
-        ignoreVertical: true,
-      })) {
+    // --- Phase 1: 起点（最初に見つかる見えている要素）の探索 ---
+    let pivotIndex: number | null = null
+
+    // 1-A. 指定されたインデックスの判定
+    if (typeof startSearchIndex === 'number' && startSearchIndex >= 0 && startSearchIndex < n) {
+      const target = lines.value[startSearchIndex]
+      if (isElementInView(target, { ignoreVertical: true })) {
+        pivotIndex = startSearchIndex
+      }
+    }
+
+    // 1-B. 通常の探索（ヒントで見つからなかった場合）
+    if (pivotIndex === null) {
+      // step数ごとに飛ばして探索
+      for (let i = 0; i < n; i += step) {
+        const current = lines.value[i]
+        if (isElementInView(current, { ignoreVertical: true })) {
+          pivotIndex = i
+          break
+        }
+      }
+    }
+
+    // 見えている要素がひとつも見つからなければ null を返す
+    if (pivotIndex === null) return null
+
+    // --- Phase 2: 起点から前後への範囲拡大 ---
+
+    // 2-A. マイナス方向への探索（firstVisibleIndexの確定）
+    let firstVisibleIndex = pivotIndex
+    // 起点の1つ前から逆順にチェック
+    for (let i = pivotIndex - 1; i >= 0; i--) {
+      const current = lines.value[i]
+      if (isElementInView(current, { ignoreVertical: true })) {
         firstVisibleIndex = i
+      }
+      else {
+        // 見えなくなったらそこで終了（それより前も見えないはず）
         break
       }
     }
 
-    if (firstVisibleIndex === null) return null
-
-    // 最後に見えている要素のindexの探索
-    let lastVisibleIndex = firstVisibleIndex
-    for (let i = firstVisibleIndex; i < n; i++) {
-      const current = novelRows.value[i]
+    // 2-B. プラス方向への探索（lastVisibleIndexの確定）
+    let lastVisibleIndex = pivotIndex
+    // 起点の1つ後ろから順にチェック
+    for (let i = pivotIndex + 1; i < n; i++) {
+      const current = lines.value[i]
       if (isElementInView(current, {
-        // 最後の行は大体8割見えていれば読めるため、水平方向は甘めに判定する
         ignoreVertical: true,
-        minHorizontalRatio: 0.8,
+        minHorizontalRatio: 0.8, // 以前と同様、最後尾は甘めに判定
       })) {
         lastVisibleIndex = i
       }
       else {
+        // 見えなくなったらそこで終了
         break
       }
     }
+
     return [firstVisibleIndex, lastVisibleIndex]
   }
 
   return {
     attachNovelEvents,
-    insertRowElm,
+    addLine,
   }
 }
